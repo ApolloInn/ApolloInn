@@ -1,0 +1,371 @@
+/* ============================================
+   Chat View — Dimensional Messages
+   ============================================ */
+
+.chat-container { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+.chat-header {
+  padding: 12px 24px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+  background: rgba(255,255,255,0.3);
+}
+
+.chat-header-left { display: flex; align-items: center; gap: 8px; }
+.chat-header-left .material-symbols-rounded { font-size: 18px; color: var(--color-primary); }
+
+.chat-header-title {
+  font-size: 12px; font-weight: 800; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--color-secondary);
+}
+
+
+/* ── Messages ── */
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 24px;
+  display: flex; flex-direction: column; gap: 18px;
+  scroll-behavior: smooth;
+}
+
+.message { max-width: 75%; width: fit-content; animation: msgFadeIn 0.3s ease-out; }
+
+.message-bubble {
+  padding: 16px 22px; border-radius: 22px; line-height: 1.75;
+  font-size: 15px; word-wrap: break-word; overflow-wrap: break-word;
+  width: fit-content;
+}
+
+.message-meta {
+  font-size: 10px; color: var(--color-secondary);
+  letter-spacing: 0.12em; margin-top: 8px; padding: 0 6px;
+  font-weight: 700; text-transform: uppercase;
+}
+
+/* Aurora messages — Elevated white card, 完美左对齐 */
+.message.aurora { align-self: flex-start; margin-right: auto; text-align: left; }
+.message.aurora .message-bubble { margin-right: auto; }
+.message.aurora .message-bubble {
+  background: linear-gradient(180deg, #ffffff 0%, #fafafe 100%);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow:
+    0 1px 2px rgba(0,0,0,0.04),
+    0 4px 12px rgba(0,0,0,0.05),
+    0 12px 24px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+  border-top-left-radius: 6px;
+  color: var(--color-primary);
+}
+
+/* User messages — Subtle recessed feel, 完美右对齐 */
+.message.user { align-self: flex-end; margin-left: auto; text-align: right; }
+.message.user .message-bubble { margin-left: auto; }
+.message.user .message-bubble {
+  background: linear-gradient(180deg, rgba(0,0,0,0.03) 0%, rgba(0,0,0,0.05) 100%);
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,0.03),
+    0 1px 0 rgba(255,255,255,0.5);
+  border-top-right-radius: 6px;
+  color: var(--color-primary);
+}
+.message.user .message-meta { text-align: right; }
+
+/* System messages */
+.message.system { align-self: center; max-width: 90%; }
+.message.system .message-bubble {
+  background: transparent; color: var(--color-secondary);
+  font-size: 11px; padding: 4px 0; text-align: center;
+}
+
+/* ── Markdown in messages ── */
+.message-bubble pre {
+  background: linear-gradient(135deg, #2a2a2e 0%, #1e1e22 100%);
+  color: #e5e7eb;
+  padding: 16px 18px; border-radius: 14px;
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  font-size: 12px; line-height: 1.6; overflow-x: auto; margin: 10px 0;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.15),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.message-bubble pre code { background: none; padding: 0; font-size: inherit; }
+
+.message-bubble code {
+  background: rgba(0,0,0,0.06); padding: 2px 6px; border-radius: 5px;
+  font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace; font-size: 12px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.message-bubble p { margin: 0 0 8px; }
+.message-bubble p:last-child { margin-bottom: 0; }
+.message-bubble ul, .message-bubble ol { padding-left: 20px; margin: 8px 0; }
+.message-bubble li { margin: 4px 0; }
+.message-bubble a { color: var(--color-info); text-decoration: none; }
+.message-bubble a:hover { text-decoration: underline; }
+.message-bubble strong { font-weight: 700; }
+.message-bubble blockquote {
+  border-left: 3px solid rgba(0,0,0,0.12); padding-left: 12px;
+  margin: 8px 0; color: var(--color-secondary);
+}
+.message-bubble table { border-collapse: collapse; margin: 8px 0; width: 100%; font-size: 12px; }
+.message-bubble th, .message-bubble td { border: 1px solid rgba(0,0,0,0.08); padding: 6px 10px; text-align: left; }
+.message-bubble th { background: rgba(0,0,0,0.03); font-weight: 700; }
+
+/* ── Tool Events — Dark elevated bar ── */
+.tool-event {
+  align-self: flex-start; max-width: 70%;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #3a3a3e 0%, #2a2a2e 100%);
+  color: rgba(255,255,255,0.7); border-radius: 14px;
+  font-size: 11px; font-family: 'SF Mono', 'Fira Code', 'Menlo', monospace;
+  letter-spacing: 0.05em; animation: msgFadeIn 0.25s ease-out; line-height: 1.6;
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.12),
+    0 8px 20px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.tool-event .tool-name { color: rgba(255,255,255,0.95); font-weight: 600; }
+.tool-event .tool-status { color: #4ade80; font-weight: 600; }
+.tool-event.success { border-left: 3px solid var(--color-success); }
+.tool-event.error { border-left: 3px solid var(--color-error); }
+
+/* ── Tool Scroll Container — 固定高度滚动窗口 ── */
+.tool-scroll-container {
+  align-self: flex-start;
+  width: fit-content;
+  min-width: 280px;
+  max-width: 50%;
+  height: 160px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #2a2a2e 0%, #1e1e22 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,0.05);
+  box-shadow:
+    inset 0 2px 6px rgba(0,0,0,0.2),
+    0 4px 12px rgba(0,0,0,0.1);
+  animation: msgFadeIn 0.3s ease-out;
+  flex-shrink: 0;
+}
+
+.tool-scroll-container .tool-event {
+  box-shadow: none;
+  background: rgba(255,255,255,0.04);
+  border-radius: 10px;
+  padding: 7px 12px;
+  animation: none;
+  margin: 0;
+  align-self: stretch;
+  max-width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  flex-shrink: 0;
+}
+
+.tool-scroll-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.35);
+  padding: 8px 4px 0;
+  border-top: 1px solid rgba(255,255,255,0.06);
+  margin: auto -12px -10px;
+  padding-left: 12px;
+  padding-bottom: 8px;
+  position: sticky;
+  bottom: -10px;
+  background: linear-gradient(135deg, #2a2a2e 0%, #1e1e22 100%);
+  border-radius: 0 0 16px 16px;
+  z-index: 1;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── Tool Event Collapse Button ── */
+.tool-collapse-btn {
+  align-self: flex-start;
+  display: flex; align-items: center; gap: 5px;
+  padding: 6px 14px;
+  border: 1px solid rgba(0,0,0,0.06);
+  border-radius: 11px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(248,248,250,0.9) 100%);
+  font-family: inherit;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-secondary);
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.03), inset 0 1px 0 rgba(255,255,255,1);
+}
+
+.tool-collapse-btn:hover {
+  color: var(--color-primary);
+  background: var(--color-surface);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* ── Typing Indicator — Floating pill ── */
+.typing-indicator {
+  align-self: flex-start; display: flex; gap: 5px;
+  padding: 14px 20px;
+  background: linear-gradient(180deg, #ffffff 0%, #fafafe 100%);
+  border: 1px solid rgba(255,255,255,0.8);
+  box-shadow:
+    0 2px 8px rgba(0,0,0,0.04),
+    0 8px 20px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+  border-radius: 22px; border-top-left-radius: 6px;
+}
+
+.typing-indicator span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--color-secondary); animation: typingPulse 1.4s infinite;
+}
+
+.typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+.typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+
+/* ── Welcome Screen ── */
+.welcome-screen {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 16px; padding: 40px;
+}
+
+.welcome-logo {
+  width: 60px; height: 60px;
+  background: linear-gradient(135deg, #444 0%, #1a1a1a 100%);
+  border-radius: 18px; display: flex; align-items: center; justify-content: center;
+  color: #fff; font-weight: 900; font-size: 24px; letter-spacing: 0.05em; margin-bottom: 8px;
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.15),
+    0 12px 30px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.welcome-title {
+  font-size: 18px; font-weight: 800; letter-spacing: 0.2em;
+  text-transform: uppercase; color: var(--color-primary);
+}
+
+.welcome-subtitle {
+  font-size: 14px; color: var(--color-secondary);
+  text-align: center; line-height: 1.8; max-width: 400px;
+}
+
+.welcome-suggestions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  justify-content: center; margin-top: 12px;
+}
+
+.suggestion-btn {
+  padding: 11px 22px;
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(250,250,252,0.85) 100%);
+  backdrop-filter: blur(10px);
+  cursor: pointer; font-family: inherit;
+  font-size: 13px; font-weight: 500; color: var(--color-primary);
+  transition: all 0.2s;
+  box-shadow:
+    0 1px 3px rgba(0,0,0,0.04),
+    0 4px 12px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+}
+
+.suggestion-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06),
+    0 12px 24px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,1);
+  background: var(--color-surface);
+}
+
+/* ── Composer — Floating input bar ── */
+.composer { padding: 16px 24px 20px; flex-shrink: 0; }
+
+.composer-inner {
+  display: flex; align-items: flex-end; gap: 10px;
+  max-width: 800px; margin: 0 auto;
+  background: linear-gradient(180deg, rgba(255,255,255,0.92) 0%, rgba(250,250,252,0.88) 100%);
+  backdrop-filter: blur(var(--glass-blur));
+  border: 1px solid rgba(255,255,255,0.7);
+  border-radius: 22px;
+  padding: 6px 6px 6px 20px;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.04),
+    0 8px 24px rgba(0,0,0,0.05),
+    0 20px 40px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+  transition: box-shadow 0.2s, border-color 0.2s;
+}
+
+.composer-inner:focus-within {
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.06),
+    0 16px 40px rgba(0,0,0,0.06),
+    0 24px 60px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+  border-color: rgba(255,255,255,0.9);
+}
+
+.composer-input {
+  flex: 1; border: none; background: transparent; color: var(--color-primary);
+  font-family: inherit; font-size: 15px; line-height: 1.5;
+  resize: none; min-height: 26px; max-height: 120px; outline: none; padding: 8px 0;
+}
+
+.composer-input::placeholder { color: var(--color-secondary); font-size: 13px; letter-spacing: 0.06em; }
+
+.composer-actions { display: flex; align-items: center; gap: 4px; }
+
+.composer-btn {
+  width: 42px; height: 42px; border: none; border-radius: 14px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s; font-family: inherit;
+  background: transparent; color: var(--color-secondary);
+}
+
+.composer-btn .material-symbols-rounded { font-size: 22px; }
+
+.composer-btn:hover { background: rgba(0,0,0,0.04); color: var(--color-primary); }
+
+.composer-btn.send-btn {
+  background: linear-gradient(135deg, #444 0%, #222 100%);
+  color: #fff;
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.12),
+    0 6px 16px rgba(0,0,0,0.08),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.composer-btn.send-btn:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 4px 12px rgba(0,0,0,0.15),
+    0 12px 24px rgba(0,0,0,0.1),
+    inset 0 1px 0 rgba(255,255,255,0.1);
+}
+
+.composer-btn.send-btn:disabled { opacity: 0.3; cursor: not-allowed; transform: none; box-shadow: none; }
+
+.composer-hint {
+  text-align: center; font-size: 10px; color: var(--color-secondary);
+  letter-spacing: 0.1em; margin-top: 8px; opacity: 0.5;
+}
+
+@media (max-width: 768px) {
+  .chat-messages { padding: 16px; }
+  .composer { padding: 12px 16px 16px; }
+}

@@ -1,0 +1,30 @@
+/* ============================================
+   Footer — Subtle elevated bar
+   ============================================ */
+
+.footer {
+  height: var(--footer-height);
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24px;
+  font-size: 10px; font-weight: 600; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--color-secondary);
+  background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0.3) 100%);
+  backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255,255,255,0.5);
+  flex-shrink: 0; opacity: 0.8;
+}
+
+.footer-left { display: flex; gap: 16px; align-items: center; }
+
+.footer-dot {
+  width: 5px; height: 5px; border-radius: 50%;
+  display: inline-block; margin-right: 4px;
+}
+
+.footer-dot.green {
+  background: var(--color-success);
+  box-shadow: 0 0 6px rgba(34,197,94,0.4);
+  animation: pulse 2s infinite;
+}
+
+.footer-dot.dark { background: var(--color-primary); }

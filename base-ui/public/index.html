@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AURORA — Autonomous Agent</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- ═══ Header ═══ -->
+  <header id="header">
+    <div class="header-left">
+      <div class="logo"><span class="logo-text">A</span></div>
+      <div class="header-title">
+        <span class="title-main">AURORA</span>
+        <span class="title-sub">AUTONOMOUS AGENT</span>
+      </div>
+    </div>
+    <nav class="header-tabs" id="tabNav">
+      <button class="tab active" data-tab="chat">
+        <span class="material-symbols-rounded">chat</span>
+        <span class="tab-label">对话</span>
+      </button>
+      <button class="tab" data-tab="tasks">
+        <span class="material-symbols-rounded">task_alt</span>
+        <span class="tab-label">任务</span>
+      </button>
+      <button class="tab" data-tab="skills">
+        <span class="material-symbols-rounded">psychology</span>
+        <span class="tab-label">能力</span>
+      </button>
+      <button class="tab" data-tab="settings">
+        <span class="material-symbols-rounded">settings</span>
+        <span class="tab-label">设置</span>
+      </button>
+    </nav>
+    <div class="header-right">
+      <button class="icon-btn" id="notifBtn" title="通知" aria-label="通知">
+        <span class="material-symbols-rounded">notifications</span>
+      </button>
+      <div class="status-indicator">
+        <span class="status-dot" id="statusDot"></span>
+        <span class="status-label" id="statusLabel">离线</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══ Main Layout ═══ -->
+  <main id="mainLayout">
+
+    <!-- ══ Chat Tab ══ -->
+    <div class="tab-content active" data-content="chat">
+      <!-- Left: Sessions -->
+      <aside class="panel-left" id="chatLeft">
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="section-title">会话</span>
+            <button class="icon-btn-sm" title="搜索" aria-label="搜索会话"><span class="material-symbols-rounded">search</span></button>
+          </div>
+          <div class="session-list" id="sessionList">
+            <div class="session-item active">
+              <span class="material-symbols-rounded session-icon">chat_bubble</span>
+              <div class="session-info">
+                <span class="session-name">新对话</span>
+                <span class="session-meta">刚刚 · 0 条消息</span>
+              </div>
+            </div>
+          </div>
+          <button class="btn-new-session" id="newSessionBtn">
+            <span class="material-symbols-rounded">add</span> 新对话
+          </button>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">活跃代理</span></div>
+          <div class="agent-list">
+            <div class="agent-item">
+              <span class="agent-dot online"></span>
+              <div class="agent-info"><span class="agent-name">General Assistant</span><span class="agent-status">就绪</span></div>
+            </div>
+            <div class="agent-item">
+              <span class="agent-dot idle"></span>
+              <div class="agent-info"><span class="agent-name">Code Helper</span><span class="agent-status">待命</span></div>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Center: Chat -->
+      <section class="panel-center">
+        <div class="chat-container">
+          <div class="chat-header">
+            <span class="chat-header-title">System Interaction Log</span>
+            <div class="chat-header-dots"><span class="dot"></span><span class="dot"></span><span class="dot"></span></div>
+          </div>
+          <div class="chat-messages" id="chatMessages">
+            <div class="welcome-screen" id="welcomeScreen">
+              <div class="welcome-logo"><div class="welcome-logo-inner">A</div></div>
+              <h2 class="welcome-title">Hi, I'm AURORA</h2>
+              <p class="welcome-desc">我可以搜索网页、读写文件、执行代码、分析数据。试试对我说：</p>
+              <div class="welcome-suggestions">
+                <button class="suggestion-chip" data-msg="帮我查看当前系统信息">系统信息</button>
+                <button class="suggestion-chip" data-msg="搜索2026年AI最新趋势">搜索</button>
+                <button class="suggestion-chip" data-msg="用Python计算斐波那契数列前20项">写代码</button>
+                <button class="suggestion-chip" data-msg="分析这个项目的代码结构">代码分析</button>
+              </div>
+            </div>
+          </div>
+          <div class="composer" id="composer">
+            <div class="composer-inner">
+              <button class="icon-btn-sm composer-cmd" title="快捷命令" aria-label="快捷命令"><span class="material-symbols-rounded">terminal</span></button>
+              <textarea id="chatInput" rows="1" placeholder="Initiate sequence or query system..." aria-label="消息输入"></textarea>
+              <button class="icon-btn-sm" title="语音输入" aria-label="语音输入"><span class="material-symbols-rounded">mic</span></button>
+              <button class="send-btn" id="sendBtn" title="发送" aria-label="发送消息"><span class="material-symbols-rounded">arrow_upward</span></button>
+            </div>
+            <div class="composer-hint">Enter 发送 · Shift+Enter 换行</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right: Status -->
+      <aside class="panel-right" id="chatRight">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">当前目标</span></div>
+          <div class="goal-card" id="goalCard">
+            <span class="material-symbols-rounded goal-icon">flag</span>
+            <div class="goal-info"><span class="goal-text">等待输入...</span><span class="goal-meta">模式：通用助手</span></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header">
+            <span class="section-title">即将发生</span>
+            <button class="icon-btn-sm" title="日历" aria-label="日历"><span class="material-symbols-rounded">calendar_today</span></button>
+          </div>
+          <div class="upcoming-list">
+            <div class="upcoming-item"><span class="upcoming-dot active"></span><span class="upcoming-time">10:00</span><span class="upcoming-text">Health Check</span></div>
+            <div class="upcoming-item"><span class="upcoming-dot"></span><span class="upcoming-time">11:30</span><span class="upcoming-text">Backup Sync</span></div>
+            <div class="upcoming-item"><span class="upcoming-dot"></span><span class="upcoming-time">13:00</span><span class="upcoming-text">Sentiment Scan</span></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">进行中任务</span></div>
+          <div class="active-tasks" id="activeTasks">
+            <div class="task-mini idle"><span class="material-symbols-rounded">hourglass_empty</span><span>暂无任务</span></div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">最近学到的</span></div>
+          <div class="memory-list" id="memoryList">
+            <div class="memory-item"><span class="memory-text">暂无记忆</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ Tasks Tab ══ -->
+    <div class="tab-content" data-content="tasks">
+      <aside class="panel-left">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">任务分类</span></div>
+          <div class="filter-list">
+            <button class="filter-item active"><span>全部</span><span class="filter-count">0</span></button>
+            <button class="filter-item"><span>进行中</span><span class="filter-count">0</span></button>
+            <button class="filter-item"><span>已完成</span><span class="filter-count">0</span></button>
+            <button class="filter-item"><span>失败</span><span class="filter-count">0</span></button>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">筛选</span></div>
+          <div class="filter-controls">
+            <div class="filter-input"><span class="material-symbols-rounded">search</span><input type="text" placeholder="搜索任务..." aria-label="搜索任务"></div>
+          </div>
+        </div>
+      </aside>
+      <section class="panel-center">
+        <div class="board-container">
+          <div class="board-header">
+            <span class="board-title">任务看板</span>
+            <div class="board-actions"><button class="chip-btn active">看板</button><button class="chip-btn">列表</button></div>
+          </div>
+          <div class="board-columns" id="taskBoard">
+            <div class="board-column">
+              <div class="column-header"><span class="column-dot running"></span><span>进行中</span><span class="column-count">0</span></div>
+              <div class="column-body" id="tasksRunning"></div>
+            </div>
+            <div class="board-column">
+              <div class="column-header"><span class="column-dot pending"></span><span>待处理</span><span class="column-count">0</span></div>
+              <div class="column-body" id="tasksPending"></div>
+            </div>
+            <div class="board-column">
+              <div class="column-header"><span class="column-dot done"></span><span>已完成</span><span class="column-count">0</span></div>
+              <div class="column-body" id="tasksDone"></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <aside class="panel-right">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">任务队列</span></div>
+          <div class="queue-info"><span class="queue-label">队列长度</span><span class="queue-value" id="queueLength">0</span></div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">定时任务</span></div>
+          <div class="schedule-list"><div class="schedule-item"><span class="material-symbols-rounded">schedule</span><span>暂无定时任务</span></div></div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ Skills Tab ══ -->
+    <div class="tab-content" data-content="skills">
+      <aside class="panel-left">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">能力分类</span></div>
+          <div class="filter-list">
+            <button class="filter-item active"><span>全部</span><span class="filter-count">6</span></button>
+            <button class="filter-item"><span>沟通</span><span class="filter-count">1</span></button>
+            <button class="filter-item"><span>信息</span><span class="filter-count">2</span></button>
+            <button class="filter-item"><span>文件</span><span class="filter-count">1</span></button>
+            <button class="filter-item"><span>代码</span><span class="filter-count">1</span></button>
+            <button class="filter-item"><span>自动化</span><span class="filter-count">1</span></button>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">连接器状态</span></div>
+          <div class="connector-list">
+            <div class="connector-item"><span class="connector-dot connected"></span><span>Web Channel</span></div>
+            <div class="connector-item"><span class="connector-dot disconnected"></span><span>Telegram</span></div>
+          </div>
+        </div>
+      </aside>
+      <section class="panel-center">
+        <div class="skills-container">
+          <div class="skills-header">
+            <span class="board-title">能力中心</span>
+            <div class="board-actions">
+              <div class="filter-input compact"><span class="material-symbols-rounded">search</span><input type="text" placeholder="搜索能力..." aria-label="搜索能力"></div>
+            </div>
+          </div>
+          <div class="skills-grid" id="skillsGrid">
+            <div class="skill-card"><div class="skill-icon">🔍</div><div class="skill-name">网络搜索</div><div class="skill-status enabled">已启用</div><div class="skill-provider">Web Search</div></div>
+            <div class="skill-card"><div class="skill-icon">📁</div><div class="skill-name">文件处理</div><div class="skill-status enabled">已启用</div><div class="skill-provider">本地文件系统</div></div>
+            <div class="skill-card"><div class="skill-icon">💻</div><div class="skill-name">代码执行</div><div class="skill-status enabled">已启用</div><div class="skill-provider">Shell Executor</div></div>
+            <div class="skill-card"><div class="skill-icon">🌐</div><div class="skill-name">浏览器自动化</div><div class="skill-status enabled">已启用</div><div class="skill-provider">Playwright</div></div>
+            <div class="skill-card"><div class="skill-icon">📊</div><div class="skill-name">数据分析</div><div class="skill-status enabled">已启用</div><div class="skill-provider">内置分析器</div></div>
+            <div class="skill-card"><div class="skill-icon">🖼️</div><div class="skill-name">图像处理</div><div class="skill-status enabled">已启用</div><div class="skill-provider">Sharp</div></div>
+          </div>
+        </div>
+      </section>
+      <aside class="panel-right">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">连接器状态</span></div>
+          <div class="connector-detail-list">
+            <div class="connector-detail">
+              <div class="connector-detail-header"><span class="connector-dot connected"></span><span>Web Channel</span></div>
+              <span class="connector-sync">最后同步：刚刚</span>
+            </div>
+          </div>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">今日用量</span></div>
+          <div class="usage-stats">
+            <div class="usage-row"><span class="usage-label">工具调用</span><span class="usage-value" id="toolCallCount">0 次</span></div>
+            <div class="usage-row"><span class="usage-label">平均耗时</span><span class="usage-value">—</span></div>
+            <div class="usage-row"><span class="usage-label">成功率</span><span class="usage-value">—</span></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <!-- ══ Settings Tab ══ -->
+    <div class="tab-content" data-content="settings">
+      <aside class="panel-left">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">设置</span></div>
+          <div class="settings-nav" id="settingsNav">
+            <button class="settings-nav-item active" data-section="apikeys"><span class="material-symbols-rounded">key</span>API Keys</button>
+            <button class="settings-nav-item" data-section="models"><span class="material-symbols-rounded">model_training</span>模型配置</button>
+            <button class="settings-nav-item" data-section="personality"><span class="material-symbols-rounded">face</span>个性与偏好</button>
+            <button class="settings-nav-item" data-section="privacy"><span class="material-symbols-rounded">shield</span>记忆与隐私</button>
+            <button class="settings-nav-item" data-section="logs"><span class="material-symbols-rounded">description</span>日志与诊断</button>
+          </div>
+        </div>
+      </aside>
+      <section class="panel-center">
+        <div class="settings-container">
+          <div class="settings-panel active" data-panel="apikeys">
+            <h3 class="settings-panel-title">API Keys 管理</h3>
+            <div class="settings-group">
+              <div class="settings-group-title">🔑 LLM 服务</div>
+              <div class="api-key-card">
+                <div class="api-key-header"><span class="api-key-name">Google AI (Gemini)</span><span class="api-key-status configured">已配置</span></div>
+                <div class="api-key-value">AIza••••••••</div>
+              </div>
+              <div class="api-key-card">
+                <div class="api-key-header"><span class="api-key-name">NVIDIA NIM</span><span class="api-key-status configured">已配置</span></div>
+                <div class="api-key-value">nvapi-••••••••</div>
+              </div>
+              <div class="api-key-card">
+                <div class="api-key-header"><span class="api-key-name">Anthropic</span><span class="api-key-status unconfigured">未配置</span></div>
+                <button class="btn-sm">添加</button>
+              </div>
+              <div class="api-key-card">
+                <div class="api-key-header"><span class="api-key-name">OpenAI</span><span class="api-key-status unconfigured">未配置</span></div>
+                <button class="btn-sm">添加</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-panel" data-panel="models">
+            <h3 class="settings-panel-title">模型配置</h3>
+            <div class="settings-group">
+              <label class="settings-label">主模型</label>
+              <select class="settings-select" aria-label="主模型"><option>Gemini 2.0 Flash</option><option>Claude 3.5 Sonnet</option><option>GPT-4o</option><option>DeepSeek V3</option></select>
+              <label class="settings-label">备用模型</label>
+              <select class="settings-select" aria-label="备用模型"><option>Qwen 2.5 72B</option><option>GPT-4o Mini</option></select>
+              <label class="settings-label">温度</label>
+              <div class="slider-row"><input type="range" min="0" max="200" value="70" class="settings-slider" aria-label="温度"><span class="slider-value">0.7</span></div>
+              <label class="settings-label">最大 Token</label>
+              <input type="number" class="settings-input" value="4096" aria-label="最大Token">
+            </div>
+          </div>
+          <div class="settings-panel" data-panel="personality">
+            <h3 class="settings-panel-title">个性与偏好</h3>
+            <div class="settings-group">
+              <label class="settings-label">AURORA 如何称呼你</label>
+              <input type="text" class="settings-input" placeholder="输入你的称呼..." aria-label="你的称呼">
+              <label class="settings-label">你如何称呼 AURORA</label>
+              <input type="text" class="settings-input" value="Aurora" aria-label="AURORA的称呼">
+              <label class="settings-label">正式程度</label>
+              <div class="slider-row"><input type="range" min="0" max="100" value="50" class="settings-slider" aria-label="正式程度"><span class="slider-value">适中</span></div>
+              <label class="settings-label">详细程度</label>
+              <div class="slider-row"><input type="range" min="0" max="100" value="70" class="settings-slider" aria-label="详细程度"><span class="slider-value">详细</span></div>
+              <label class="settings-label">主要语言</label>
+              <select class="settings-select" aria-label="主要语言"><option>简体中文</option><option>English</option><option>日本語</option></select>
+              <div class="settings-toggles">
+                <label class="toggle-row"><input type="checkbox" checked><span>主动提醒</span></label>
+                <label class="toggle-row"><input type="checkbox" checked><span>主动关心</span></label>
+                <label class="toggle-row"><input type="checkbox" checked><span>使用 Emoji</span></label>
+              </div>
+            </div>
+          </div>
+          <div class="settings-panel" data-panel="privacy">
+            <h3 class="settings-panel-title">记忆与隐私</h3>
+            <div class="settings-group">
+              <div class="settings-toggles">
+                <label class="toggle-row"><input type="checkbox" checked><span>自动学习新信息</span></label>
+                <label class="toggle-row"><input type="checkbox"><span>记忆敏感信息（手机号、地址等）</span></label>
+              </div>
+              <div class="settings-actions">
+                <button class="btn-sm">查看全部记忆</button>
+                <button class="btn-sm">导出记忆</button>
+                <button class="btn-sm danger">清空记忆</button>
+              </div>
+            </div>
+          </div>
+          <div class="settings-panel" data-panel="logs">
+            <h3 class="settings-panel-title">系统日志</h3>
+            <div class="log-filters">
+              <button class="chip-btn active">全部</button><button class="chip-btn">INFO</button><button class="chip-btn">WARN</button><button class="chip-btn">ERROR</button>
+            </div>
+            <div class="log-container" id="logContainer">
+              <div class="log-entry info"><span class="log-level">INFO</span><span class="log-time">--:--:--</span><span class="log-msg">等待系统启动...</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <aside class="panel-right">
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">连通性测试</span></div>
+          <div class="connectivity-list" id="connectivityList">
+            <div class="connectivity-item">
+              <span class="connector-dot disconnected"></span>
+              <div class="connectivity-info"><span>AURORA Gateway</span><span class="connectivity-latency">未连接</span></div>
+            </div>
+          </div>
+          <button class="btn-sm" id="testConnBtn" style="margin-top:8px;width:100%">测试全部</button>
+        </div>
+        <div class="panel-section">
+          <div class="section-header"><span class="section-title">最近错误</span></div>
+          <div class="error-list" id="errorList"><div class="error-item empty">暂无错误</div></div>
+        </div>
+      </aside>
+    </div>
+  </main>
+
+  <!-- ═══ Footer ═══ -->
+  <footer id="footer">
+    <div class="footer-left">
+      <span class="footer-item"><span class="material-symbols-rounded">speed</span>延迟: <span id="footerLatency">—</span></span>
+      <span class="footer-item"><span class="material-symbols-rounded">dns</span>Gateway: <span id="footerGateway">离线</span></span>
+    </div>
+    <div class="footer-right"><span class="footer-item">AURORA v0.1.0</span></div>
+  </footer>
+
+  <script src="/app.js"></script>
+</body>
+</html>

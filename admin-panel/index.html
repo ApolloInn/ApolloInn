@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kiro Gateway Admin</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #0f1117; color: #e1e4e8; min-height: 100vh; }
+  .container { max-width: 900px; margin: 0 auto; padding: 24px; }
+  h1 { font-size: 24px; margin-bottom: 8px; }
+  .subtitle { color: #8b949e; margin-bottom: 24px; }
+  .card { background: #161b22; border: 1px solid #30363d; border-radius: 8px; padding: 20px; margin-bottom: 16px; }
+  .card h2 { font-size: 16px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  label { display: block; font-size: 13px; color: #8b949e; margin-bottom: 4px; }
+  input, textarea { width: 100%; padding: 8px 12px; background: #0d1117; border: 1px solid #30363d; border-radius: 6px; color: #e1e4e8; font-size: 14px; font-family: monospace; }
+  textarea { min-height: 120px; resize: vertical; }
+  input:focus, textarea:focus { outline: none; border-color: #58a6ff; }
+  .btn { padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 500; }
+  .btn-primary { background: #238636; color: #fff; }
+  .btn-primary:hover { background: #2ea043; }
+  .btn-danger { background: #da3633; color: #fff; }
+  .btn-danger:hover { background: #f85149; }
+  .btn-sm { padding: 4px 10px; font-size: 12px; }
+  .row { display: flex; gap: 12px; margin-top: 12px; }
+  .row > * { flex: 1; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 8px 12px; text-align: left; border-bottom: 1px solid #21262d; }
+  th { color: #8b949e; font-weight: 500; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 12px; font-size: 11px; }
+  .badge-green { background: #238636; }
+  .badge-red { background: #da3633; }
+  .badge-gray { background: #30363d; }
+  .login-box { max-width: 400px; margin: 100px auto; }
+  .msg { padding: 8px 12px; border-radius: 6px; margin-top: 8px; font-size: 13px; }
+  .msg-ok { background: #1b3a2d; color: #3fb950; border: 1px solid #238636; }
+  .msg-err { background: #3d1a1a; color: #f85149; border: 1px solid #da3633; }
+  .mono { font-family: monospace; font-size: 12px; word-break: break-all; }
+  .hidden { display: none; }
+  .copy-btn { cursor: pointer; color: #58a6ff; font-size: 12px; }
+  .copy-btn:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- 登录 -->
+<div id="login-section" class="login-box">
+  <div class="card">
+    <h2>🔐 Kiro Gateway Admin</h2>
+    <label>网关地址</label>
+    <input id="gw-url" placeholder="http://your-server:8000" value="">
+    <label style="margin-top:12px">Admin Key</label>
+    <input id="admin-key" type="password" placeholder="admin-xxxx">
+    <div class="row"><button class="btn btn-primary" onclick="doLogin()" style="flex:none;width:100%">连接</button></div>
+    <div id="login-msg"></div>
+  </div>
+</div>
+
+<!-- 主面板 -->
+<div id="main-section" class="hidden">
+  <h1>Kiro Gateway Admin</h1>
+  <p class="subtitle" id="status-line">加载中...</p>
+
+  <!-- Token 管理 -->
+  <div class="card">
+    <h2>🔑 Token 池</h2>
+    <table id="token-table">
+      <thead><tr><th>ID</th><th>Region</th><th>状态</th><th>使用次数</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <details style="margin-top:12px">
+      <summary style="cursor:pointer;color:#58a6ff;font-size:13px">+ 添加 Token</summary>
+      <div style="margin-top:8px">
+        <label>粘贴 kiro-auth-token.json 内容</label>
+        <textarea id="token-json" placeholder='{"accessToken":"...","refreshToken":"...","expiresAt":"...","region":"us-east-1",...}'></textarea>
+        <label style="margin-top:8px">设备注册文件内容（Enterprise 可选，含 clientId/clientSecret）</label>
+        <textarea id="device-json" placeholder='{"clientId":"...","clientSecret":"...","expiresAt":"..."}'  style="min-height:60px"></textarea>
+        <div class="row"><button class="btn btn-primary" onclick="addToken()">添加到池</button></div>
+        <div id="token-msg"></div>
+      </div>
+    </details>
+  </div>
+
+  <!-- 用户管理 -->
+  <div class="card">
+    <h2>👤 用户管理</h2>
+    <table id="user-table">
+      <thead><tr><th>名称</th><th>UserToken</th><th>状态</th><th>请求数</th><th>操作</th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <div class="row" style="margin-top:12px">
+      <input id="new-user-name" placeholder="用户名（可选）">
+      <button class="btn btn-primary" onclick="createUser()" style="flex:none">创建用户</button>
+    </div>
+    <div id="user-msg"></div>
+  </div>
+</div>
+
+<script>
+let GW_URL = '';
+let ADMIN_KEY = '';
+
+function api(path, opts = {}) {
+  return fetch(`${GW_URL}/admin${path}`, {
+    ...opts,
+    headers: { 'X-Admin-Key': ADMIN_KEY, 'Content-Type': 'application/json', ...(opts.headers || {}) },
+  }).then(r => r.json());
+}
+
+async function doLogin() {
+  GW_URL = document.getElementById('gw-url').value.replace(/\/+$/, '');
+  ADMIN_KEY = document.getElementById('admin-key').value;
+  try {
+    const data = await api('/status');
+    if (data.tokens !== undefined) {
+      document.getElementById('login-section').classList.add('hidden');
+      document.getElementById('main-section').classList.remove('hidden');
+      localStorage.setItem('gw_url', GW_URL);
+      localStorage.setItem('admin_key', ADMIN_KEY);
+      refresh();
+    } else {
+      showMsg('login-msg', 'err', '连接失败');
+    }
+  } catch (e) {
+    showMsg('login-msg', 'err', '无法连接: ' + e.message);
+  }
+}
+
+async function refresh() {
+  const status = await api('/status');
+  document.getElementById('status-line').textContent =
+    `Token: ${status.active_tokens}/${status.tokens} | 用户: ${status.active_users}/${status.users}`;
+  await refreshTokens();
+  await refreshUsers();
+}
+
+async function refreshTokens() {
+  const data = await api('/tokens');
+  const tbody = document.querySelector('#token-table tbody');
+  tbody.innerHTML = data.tokens.map(t => `
+    <tr>
+      <td class="mono">${t.id}</td>
+      <td>${t.region || '-'}</td>
+      <td><span class="badge ${t.status === 'active' ? 'badge-green' : 'badge-red'}">${t.status}</span></td>
+      <td>${t.useCount || 0}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeToken('${t.id}')">删除</button></td>
+    </tr>
+  `).join('');
+}
+
+async function refreshUsers() {
+  const data = await api('/users');
+  const tbody = document.querySelector('#user-table tbody');
+  tbody.innerHTML = data.users.map(u => `
+    <tr>
+      <td>${u.name}</td>
+      <td class="mono">${u.usertoken} <span class="copy-btn" onclick="showFullToken('${u.id}')">查看</span></td>
+      <td><span class="badge ${u.status === 'active' ? 'badge-green' : 'badge-red'}">${u.status}</span></td>
+      <td>${u.requestCount || 0}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="removeUser('${u.id}')">删除</button></td>
+    </tr>
+  `).join('');
+}
+
+async function addToken() {
+  try {
+    const tokenJson = JSON.parse(document.getElementById('token-json').value);
+    let deviceJson = {};
+    const deviceStr = document.getElementById('device-json').value.trim();
+    if (deviceStr) deviceJson = JSON.parse(deviceStr);
+    const merged = { ...tokenJson, ...deviceJson };
+    const data = await api('/tokens', { method: 'POST', body: JSON.stringify(merged) });
+    showMsg('token-msg', 'ok', `Token 已添加: ${data.token.id}`);
+    document.getElementById('token-json').value = '';
+    document.getElementById('device-json').value = '';
+    refresh();
+  } catch (e) {
+    showMsg('token-msg', 'err', '添加失败: ' + e.message);
+  }
+}
+
+async function removeToken(id) {
+  if (!confirm('确定删除此 Token?')) return;
+  await api(`/tokens/${id}`, { method: 'DELETE' });
+  refresh();
+}
+
+async function createUser() {
+  const name = document.getElementById('new-user-name').value;
+  const data = await api('/users', { method: 'POST', body: JSON.stringify({ name }) });
+  showMsg('user-msg', 'ok', `用户已创建！UserToken: ${data.user.usertoken}（请立即复制，之后不再完整显示）`);
+  document.getElementById('new-user-name').value = '';
+  refresh();
+}
+
+async function removeUser(id) {
+  if (!confirm('确定删除此用户?')) return;
+  await api(`/users/${id}`, { method: 'DELETE' });
+  refresh();
+}
+
+async function showFullToken(userId) {
+  const data = await api(`/users/${userId}/token`);
+  prompt('完整 UserToken（复制）:', data.usertoken);
+}
+
+function showMsg(id, type, text) {
+  const el = document.getElementById(id);
+  el.className = `msg msg-${type}`;
+  el.textContent = text;
+  setTimeout(() => { el.textContent = ''; el.className = ''; }, 8000);
+}
+
+// 自动恢复登录
+window.addEventListener('load', () => {
+  const url = localStorage.getItem('gw_url');
+  const key = localStorage.getItem('admin_key');
+  if (url && key) {
+    document.getElementById('gw-url').value = url;
+    document.getElementById('admin-key').value = key;
+    doLogin();
+  }
+});
+</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,64 @@
+/* ============================================
+   Shared Components — Enhanced Depth
+   ============================================ */
+
+/* ── Empty State ── */
+.empty-state {
+  flex: 1; display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 12px; color: var(--color-secondary); padding: 40px;
+}
+
+.empty-state .material-symbols-rounded { font-size: 48px; opacity: 0.2; }
+.empty-state p { font-size: 12px; letter-spacing: 0.1em; }
+
+/* ── Timeline — Vertical dot line ── */
+.timeline {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.timeline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 6px 0;
+  position: relative;
+}
+
+.timeline-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex-shrink: 0;
+  margin-top: 3px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  position: relative;
+  z-index: 1;
+}
+
+.timeline-item.future .timeline-dot {
+  background: #d1d5db;
+  box-shadow: none;
+}
+
+/* Vertical connecting line between dots */
+.timeline-item:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  top: 19px;
+  bottom: -10px;
+  width: 2px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.03) 100%);
+  border-radius: 1px;
+}
+
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-time { font-size: 10px; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; color: var(--color-secondary); }
+.timeline-title { font-size: 13px; font-weight: 600; color: var(--color-primary); margin-top: 2px; }
+
+/* ── Button Row ── */
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; }

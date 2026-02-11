@@ -1,0 +1,217 @@
+/* ============================================
+   Sidebars — Glass Panels with Depth
+   ============================================ */
+
+.sidebar-left, .sidebar-right {
+  width: var(--sidebar-width);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255,255,255,0.4);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  overflow-y: auto;
+  transition: width 0.3s ease, opacity 0.3s ease;
+  border-radius: 20px;
+  border: var(--border-light);
+  box-shadow: var(--shadow-md);
+}
+
+.sidebar-left.collapsed, .sidebar-right.collapsed {
+  width: 0; overflow: hidden; opacity: 0; border: none; box-shadow: none;
+}
+
+/* ── Sections ── */
+.sidebar-section {
+  padding: 16px;
+  border-bottom: 1px solid rgba(0,0,0,0.04);
+}
+
+.sidebar-section:last-child { border-bottom: none; }
+
+.section-title {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-action {
+  font-size: 9px; font-weight: 600; color: var(--color-secondary);
+  cursor: pointer; border: none; background: none;
+  font-family: inherit; letter-spacing: 0.15em;
+  text-transform: uppercase; opacity: 0.6; transition: opacity 0.2s;
+}
+
+.section-action:hover { opacity: 1; }
+
+/* ── Session List — Raised items ── */
+.session-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 14px;
+  cursor: pointer; transition: all 0.2s; margin-bottom: 4px;
+  border: 1px solid transparent;
+}
+
+.session-item:hover {
+  background: rgba(255,255,255,0.6);
+  border-color: rgba(255,255,255,0.8);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.session-item.active {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.9);
+  box-shadow:
+    0 2px 6px rgba(0,0,0,0.05),
+    0 8px 16px rgba(0,0,0,0.03),
+    inset 0 1px 0 rgba(255,255,255,1);
+}
+
+.session-icon {
+  width: 38px; height: 38px; border-radius: 12px;
+  background: linear-gradient(135deg, #f8f8fa 0%, #eeeef2 100%);
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.8), 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.session-icon .material-symbols-rounded { font-size: 18px; color: var(--color-secondary); }
+.session-info { flex: 1; min-width: 0; }
+.session-name { font-size: 13px; font-weight: 600; color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.session-meta { font-size: 10px; color: var(--color-secondary); letter-spacing: 0.08em; margin-top: 3px; }
+
+/* ── New Button — Dashed with depth ── */
+.new-btn {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  width: 100%; padding: 12px;
+  border: 1.5px dashed rgba(0,0,0,0.12); border-radius: 14px;
+  background: transparent; cursor: pointer; font-family: inherit;
+  font-size: 12px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--color-secondary);
+  transition: all 0.2s; margin-top: 10px;
+}
+
+.new-btn:hover {
+  background: rgba(255,255,255,0.6); border-color: rgba(0,0,0,0.2);
+  color: var(--color-primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.new-btn .material-symbols-rounded { font-size: 18px; }
+
+/* ── Agent Card ── */
+.agent-card { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; margin-bottom: 4px; }
+
+.agent-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+
+.agent-dot.active { background: var(--color-success); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+.agent-dot.idle { background: #d1d5db; }
+
+.agent-name { font-size: 13px; font-weight: 600; }
+.agent-status { font-size: 10px; color: var(--color-secondary); letter-spacing: 0.08em; }
+
+/* ── Status Card — Elevated ── */
+.status-card {
+  background: linear-gradient(180deg, rgba(255,255,255,0.9) 0%, rgba(250,250,252,0.85) 100%);
+  border-radius: 16px; padding: 14px; margin-bottom: 8px;
+  box-shadow: var(--shadow-card);
+  border: var(--border-light);
+}
+
+.status-item { display: flex; align-items: center; gap: 8px; padding: 7px 0; font-size: 12px; color: var(--color-primary); }
+.status-item-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+.status-item-time { margin-left: auto; font-size: 10px; color: var(--color-secondary); letter-spacing: 0.08em; }
+
+/* ── Filter Pills — Soft press ── */
+.filter-pills { display: flex; flex-direction: column; gap: 2px; }
+
+.filter-pill {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 9px 14px; border-radius: 11px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--color-primary);
+  transition: all 0.2s; border: 1px solid transparent; background: none;
+  font-family: inherit; width: 100%; text-align: left;
+}
+
+.filter-pill:hover {
+  background: rgba(255,255,255,0.5);
+  border-color: rgba(255,255,255,0.6);
+}
+
+.filter-pill.active {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.9);
+  box-shadow:
+    0 1px 4px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,1);
+  font-weight: 600;
+}
+
+.filter-pill-count {
+  font-size: 10px; color: var(--color-secondary);
+  background: rgba(0,0,0,0.05); padding: 3px 10px;
+  border-radius: 8px; font-weight: 600;
+}
+
+/* ── Link Button ── */
+.link-btn {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--color-secondary);
+  cursor: pointer; border: none; background: none;
+  font-family: inherit; padding: 8px 0; transition: color 0.2s;
+}
+
+.link-btn:hover { color: var(--color-primary); }
+.link-btn .material-symbols-rounded { font-size: 16px; }
+
+/* ── Settings Nav — Raised pills ── */
+.settings-nav-group {
+  font-size: 10px; font-weight: 800; letter-spacing: 0.15em;
+  text-transform: uppercase; color: var(--color-secondary);
+  padding: 14px 12px 7px;
+}
+
+.settings-nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 11px; cursor: pointer;
+  font-size: 13px; font-weight: 500; color: var(--color-primary);
+  transition: all 0.2s; border: 1px solid transparent; background: none;
+  font-family: inherit; width: 100%; text-align: left;
+}
+
+.settings-nav-item:hover {
+  background: rgba(255,255,255,0.5);
+}
+
+.settings-nav-item.active {
+  background: rgba(255,255,255,0.85);
+  border-color: rgba(255,255,255,0.9);
+  box-shadow:
+    0 1px 4px rgba(0,0,0,0.04),
+    inset 0 1px 0 rgba(255,255,255,1);
+  font-weight: 600;
+}
+
+.settings-nav-item .material-symbols-rounded { font-size: 16px; color: var(--color-secondary); }
+
+/* ── Progress Bar ── */
+.progress-bar {
+  height: 5px; background: rgba(0,0,0,0.06); border-radius: 3px;
+  overflow: hidden; margin-top: 6px;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.06);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #555 0%, #333 100%);
+  border-radius: 3px; transition: width 0.5s ease;
+  box-shadow: 0 0 4px rgba(0,0,0,0.1);
+}

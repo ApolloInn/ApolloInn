@@ -1,0 +1,138 @@
+.mac-manage-page {
+  padding: 32px;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 40px;
+}
+
+.page-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.title-icon {
+  font-size: 28px;
+}
+
+.wip-badge {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 4px 10px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  color: #92400e;
+  border-radius: 12px;
+  border: 1px solid #fcd34d;
+}
+
+.page-description {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0;
+}
+
+.coming-soon-container {
+  background: linear-gradient(145deg, #ffffff 0%, #f9fafb 100%);
+  border-radius: 16px;
+  padding: 48px;
+  text-align: center;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+}
+
+.coming-soon-icon {
+  font-size: 64px;
+  margin-bottom: 20px;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+.coming-soon-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #111827;
+  margin: 0 0 12px 0;
+}
+
+.coming-soon-text {
+  font-size: 15px;
+  color: #6b7280;
+  margin: 0 0 40px 0;
+}
+
+.planned-features {
+  background: rgba(59, 130, 246, 0.04);
+  border-radius: 12px;
+  padding: 24px;
+  text-align: left;
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.features-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 16px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.features-title::before {
+  content: '📋';
+}
+
+.features-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.features-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: white;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.2s;
+}
+
+.features-list li:hover {
+  border-color: rgba(59, 130, 246, 0.2);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.08);
+}
+
+.feature-icon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.feature-text {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+
+

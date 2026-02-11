@@ -1,0 +1,108 @@
+{
+  "name": "yuan-cursor-manager",
+  "version": "1.1.4",
+  "releaseDate": "2025-12-12",
+  "description": "Yuan-cursor账号管理器",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Yuan-ZiWeiXing/cursor-token-manager"
+  },
+  "homepage": "https://github.com/Yuan-ZiWeiXing/cursor-token-manager",
+  "main": "dist-electron/main.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "postinstall": "electron-builder install-app-deps",
+    "electron:dev": "tsc -p electron && node copy-preload.js && concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "electron:build": "tsc -p electron && node copy-preload.js && vite build && electron-builder",
+    "electron:publish": "tsc -p electron && node copy-preload.js && vite build && electron-builder --publish always",
+    "electron:compile": "tsc -p electron && node copy-preload.js"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.5.0",
+    "electron-store": "^8.1.0",
+    "electron-updater": "^6.1.7",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@vitejs/plugin-react": "^4.2.0",
+    "concurrently": "^8.2.0",
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1",
+    "electron-rebuild": "^3.2.9",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.yuan.cursor-manager",
+    "productName": "yuan-cursor-manager",
+    "artifactName": "${productName}-setup-${version}.${ext}",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "Yuan-ZiWeiXing",
+        "repo": "cursor-token-manager"
+      }
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        }
+      ],
+      "icon": "build/icon.ico",
+      "requestedExecutionLevel": "requireAdministrator",
+      "extraResources": [
+        {
+          "from": "build/app.manifest",
+          "to": "app.manifest"
+        }
+      ],
+      "artifactName": "${productName}-setup-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Yuan-cursor账号管理器"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["universal", "arm64", "x64"]
+        }
+      ],
+      "icon": "build/icon.icns",
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": ["x64"]
+        }
+      ],
+      "icon": "build/icon.png",
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    }
+  }
+}

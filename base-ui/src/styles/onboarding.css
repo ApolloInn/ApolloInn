@@ -1,0 +1,8 @@
+/* ============================================
+   Onboarding — 对话式配置引导
+   全部复用现有 Stitch Design 组件样式:
+   - suggestion-btn (选项按钮)
+   - composer-inner / composer-btn / send-btn (输入框)
+   - message aurora / message user (消息气泡)
+   无额外自定义 CSS
+   ============================================ */
