@@ -85,3 +85,85 @@ async def get_cursor_activation(request: Request):
     if not key:
         raise HTTPException(status_code=404, detail="暂无可用激活码，请联系管理员")
     return {"activation_code": key}
+
+
+
+@user_router.post("/smart-switch")
+async def smart_switch(request: Request):
+    """
+    服务端换号：
+    1. 先尝试 billing/request-switch 真正换新号
+    2. 再尝试 request-reassign
+    3. 都失败时 fallback 到 activate 拿当前账号最新 token（刷新凭证）
+    返回账号凭证给网页端，网页端再传给本地 Agent 写入。
+    """
+    import httpx
+
+    user = await _get_current_user(request)
+    key = await request.app.state.pool.get_promax_key_for_user(user["name"])
+    if not key:
+        raise HTTPException(status_code=404, detail="暂无可用激活码")
+
+    promax_api = "http://api.cursorpromax.cn"
+    device_id = user["id"][:32]
+
+    switched_new = False  # 标记是否真正换到了新号
+
+    async with httpx.AsyncClient(timeout=30) as client:
+        # 方式1: billing/request-switch（真正换新号）
+        try:
+            r = await client.post(f"{promax_api}/api/billing/request-switch", json={
+                "activation_code": key,
+                "device_id": device_id,
+                "reason": "quota_exhausted",
+            })
+            if r.status_code == 200:
+                data = r.json()
+                if data.get("success") and data.get("switched") and data.get("new_account"):
+                    account = data["new_account"]
+                    logger.info(f"smart-switch OK via request-switch: {account.get('email')}")
+                    return {"ok": True, "switched": True, "account": account}
+                # 号池无可用账号，继续尝试其他方式
+                logger.info(f"request-switch: {data.get('message', 'no switch')}")
+        except Exception as e:
+            logger.warning(f"request-switch failed: {e}")
+
+        # 方式2: billing/request-reassign
+        try:
+            r = await client.post(
+                f"{promax_api}/api/billing/request-reassign",
+                params={"activation_code": key, "device_id": device_id},
+                json={},
+            )
+            if r.status_code == 200:
+                data = r.json()
+                if data.get("success") and data.get("account"):
+                    account = data["account"]
+                    logger.info(f"smart-switch OK via request-reassign: {account.get('email')}")
+                    return {"ok": True, "switched": True, "account": account}
+        except Exception as e:
+            logger.warning(f"request-reassign failed: {e}")
+
+        # 方式3: fallback — activate 拿当前账号最新 token（刷新凭证）
+        try:
+            r = await client.post(f"{promax_api}/api/activate", json={
+                "code": key, "device_id": device_id,
+                "device_name": "apollo-gateway", "plugin_version": "2.0.0-apollo",
+            })
+            if r.status_code == 200:
+                act_data = r.json()
+                assigned = act_data.get("data", {}).get("assigned_account")
+                if assigned and assigned.get("access_token"):
+                    logger.info(f"smart-switch fallback: refreshed token for {assigned.get('email')}")
+                    return {
+                        "ok": True,
+                        "switched": False,
+                        "refreshed": True,
+                        "account": assigned,
+                        "message": "号池暂无其他可用账号，已刷新当前账号凭证",
+                    }
+        except Exception as e:
+            logger.warning(f"activate fallback failed: {e}")
+
+    return {"ok": False, "error": "号池暂无可用账号且无法刷新凭证，请联系管理员或稍后再试"}
+
