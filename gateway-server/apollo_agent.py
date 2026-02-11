@@ -814,6 +814,91 @@ class AgentHandler(BaseHTTPRequestHandler):
 #  主入口
 # ═══════════════════════════════════════════════════════
 
+def _run_macos_native(url: str):
+    """macOS: 用 pyobjc 创建原生 WKWebView 窗口。"""
+    from Foundation import NSObject, NSURL, NSURLRequest
+    from AppKit import (
+        NSApplication, NSMenu, NSMenuItem,
+        NSWindow, NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
+        NSWindowStyleMaskMiniaturizable, NSWindowStyleMaskResizable,
+        NSBackingStoreBuffered, NSScreen, NSApplicationActivationPolicyRegular,
+    )
+    from WebKit import WKWebView
+
+    app = NSApplication.sharedApplication()
+    app.setActivationPolicy_(NSApplicationActivationPolicyRegular)
+
+    # ── 菜单栏（让 ⌘C ⌘V ⌘X ⌘A 生效）──
+    menubar = NSMenu.alloc().init()
+    app_menu = NSMenu.alloc().initWithTitle_("Apollo Agent")
+    app_menu.addItemWithTitle_action_keyEquivalent_("关于 Apollo Agent", None, "")
+    app_menu.addItem_(NSMenuItem.separatorItem())
+    app_menu.addItemWithTitle_action_keyEquivalent_("退出 Apollo Agent", "terminate:", "q")
+    app_item = NSMenuItem.alloc().init()
+    app_item.setSubmenu_(app_menu)
+    menubar.addItem_(app_item)
+
+    edit_menu = NSMenu.alloc().initWithTitle_("编辑")
+    edit_menu.addItemWithTitle_action_keyEquivalent_("撤销", "undo:", "z")
+    edit_menu.addItemWithTitle_action_keyEquivalent_("重做", "redo:", "Z")
+    edit_menu.addItem_(NSMenuItem.separatorItem())
+    edit_menu.addItemWithTitle_action_keyEquivalent_("剪切", "cut:", "x")
+    edit_menu.addItemWithTitle_action_keyEquivalent_("拷贝", "copy:", "c")
+    edit_menu.addItemWithTitle_action_keyEquivalent_("粘贴", "paste:", "v")
+    edit_menu.addItemWithTitle_action_keyEquivalent_("全选", "selectAll:", "a")
+    edit_item = NSMenuItem.alloc().init()
+    edit_item.setSubmenu_(edit_menu)
+    menubar.addItem_(edit_item)
+
+    app.setMainMenu_(menubar)
+
+    # ── 窗口 ──
+    screen = NSScreen.mainScreen().frame()
+    w, h = 860, 740
+    x = (screen.size.width - w) / 2
+    y = (screen.size.height - h) / 2
+
+    style = (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+             NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
+    window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
+        ((x, y), (w, h)), style, NSBackingStoreBuffered, False
+    )
+    window.setTitle_("Apollo Agent")
+    window.setMinSize_((640, 500))
+
+    webview = WKWebView.alloc().initWithFrame_(((0, 0), (w, h)))
+    webview.setAutoresizingMask_(0x12)  # NSViewWidthSizable | NSViewHeightSizable
+    req = NSURLRequest.requestWithURL_(NSURL.URLWithString_(url))
+    webview.loadRequest_(req)
+    window.setContentView_(webview)
+    window.makeKeyAndOrderFront_(None)
+
+    # 窗口关闭时退出
+    class AppDelegate(NSObject):
+        def applicationShouldTerminateAfterLastWindowClosed_(self, sender):
+            return True
+
+    delegate = AppDelegate.alloc().init()
+    app.setDelegate_(delegate)
+    app.activateIgnoringOtherApps_(True)
+
+    app.run()
+
+
+def _run_windows_native(url: str):
+    """Windows: 用 pywebview 创建原生 WebView2/MSHTML 窗口。"""
+    import webview
+    webview.create_window(
+        "Apollo Agent",
+        url,
+        width=860,
+        height=740,
+        min_size=(640, 500),
+        resizable=True,
+    )
+    webview.start()
+
+
 def main():
     import threading
 
@@ -824,77 +909,17 @@ def main():
     server_thread = threading.Thread(target=server.serve_forever, daemon=True)
     server_thread.start()
 
-    # macOS: 用 pyobjc 直接创建原生 WKWebView 窗口
     opened = False
+
     if _system == "Darwin":
         try:
-            from Foundation import NSObject, NSURL, NSURLRequest
-            from AppKit import (
-                NSApplication, NSMenu, NSMenuItem,
-                NSWindow, NSWindowStyleMaskTitled, NSWindowStyleMaskClosable,
-                NSWindowStyleMaskMiniaturizable, NSWindowStyleMaskResizable,
-                NSBackingStoreBuffered, NSScreen, NSApplicationActivationPolicyRegular,
-            )
-            from WebKit import WKWebView
-
-            app = NSApplication.sharedApplication()
-            app.setActivationPolicy_(NSApplicationActivationPolicyRegular)
-
-            # ── 菜单栏（让 ⌘C ⌘V ⌘X ⌘A 生效）──
-            menubar = NSMenu.alloc().init()
-            app_menu = NSMenu.alloc().initWithTitle_("Apollo Agent")
-            app_menu.addItemWithTitle_action_keyEquivalent_("关于 Apollo Agent", None, "")
-            app_menu.addItem_(NSMenuItem.separatorItem())
-            app_menu.addItemWithTitle_action_keyEquivalent_("退出 Apollo Agent", "terminate:", "q")
-            app_item = NSMenuItem.alloc().init()
-            app_item.setSubmenu_(app_menu)
-            menubar.addItem_(app_item)
-
-            edit_menu = NSMenu.alloc().initWithTitle_("编辑")
-            edit_menu.addItemWithTitle_action_keyEquivalent_("撤销", "undo:", "z")
-            edit_menu.addItemWithTitle_action_keyEquivalent_("重做", "redo:", "Z")
-            edit_menu.addItem_(NSMenuItem.separatorItem())
-            edit_menu.addItemWithTitle_action_keyEquivalent_("剪切", "cut:", "x")
-            edit_menu.addItemWithTitle_action_keyEquivalent_("拷贝", "copy:", "c")
-            edit_menu.addItemWithTitle_action_keyEquivalent_("粘贴", "paste:", "v")
-            edit_menu.addItemWithTitle_action_keyEquivalent_("全选", "selectAll:", "a")
-            edit_item = NSMenuItem.alloc().init()
-            edit_item.setSubmenu_(edit_menu)
-            menubar.addItem_(edit_item)
-
-            app.setMainMenu_(menubar)
-
-            # ── 窗口 ──
-            screen = NSScreen.mainScreen().frame()
-            w, h = 860, 740
-            x = (screen.size.width - w) / 2
-            y = (screen.size.height - h) / 2
-
-            style = (NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
-                     NSWindowStyleMaskMiniaturizable | NSWindowStyleMaskResizable)
-            window = NSWindow.alloc().initWithContentRect_styleMask_backing_defer_(
-                ((x, y), (w, h)), style, NSBackingStoreBuffered, False
-            )
-            window.setTitle_("Apollo Agent")
-            window.setMinSize_((640, 500))
-
-            webview = WKWebView.alloc().initWithFrame_(((0, 0), (w, h)))
-            webview.setAutoresizingMask_(0x12)  # NSViewWidthSizable | NSViewHeightSizable
-            req = NSURLRequest.requestWithURL_(NSURL.URLWithString_(url))
-            webview.loadRequest_(req)
-            window.setContentView_(webview)
-            window.makeKeyAndOrderFront_(None)
-
-            # 窗口关闭时退出
-            class AppDelegate(NSObject):
-                def applicationShouldTerminateAfterLastWindowClosed_(self, sender):
-                    return True
-
-            delegate = AppDelegate.alloc().init()
-            app.setDelegate_(delegate)
-            app.activateIgnoringOtherApps_(True)
-
-            app.run()
+            _run_macos_native(url)
+            opened = True
+        except Exception:
+            pass
+    elif _system == "Windows":
+        try:
+            _run_windows_native(url)
             opened = True
         except Exception:
             pass
@@ -903,7 +928,7 @@ def main():
         server.shutdown()
         return
 
-    # fallback 浏览器
+    # fallback: 浏览器（Linux 或依赖缺失时）
     webbrowser.open(url)
     try:
         server_thread.join()
