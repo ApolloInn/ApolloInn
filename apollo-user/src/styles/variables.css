@@ -1,0 +1,44 @@
+/* ═══ Apollo Design Tokens — Orange-Red Theme ═══ */
+:root {
+  --c-primary: #e8501e;
+  --c-primary-dark: #c43d12;
+  --c-primary-light: #ff7a4d;
+  --c-primary-bg: rgba(232, 80, 30, 0.06);
+  --c-primary-bg-strong: rgba(232, 80, 30, 0.12);
+
+  --c-text: #1a1a1a;
+  --c-sec: #777777;
+  --c-surface: #ffffff;
+  --c-accent: #f3f4f6;
+
+  --bg-app: #f0f0f2;
+  --bg-fluid:
+    radial-gradient(ellipse at 10% 10%, rgba(255, 248, 245, 0.9) 0%, transparent 50%),
+    radial-gradient(ellipse at 90% 80%, rgba(240, 232, 228, 0.6) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, #f8f6f5 0%, #f0eeec 100%);
+
+  --glass-bg: rgba(255, 255, 255, 0.35);
+  --glass-panel: rgba(255, 255, 255, 0.45);
+  --glass-capsule: rgba(255, 255, 255, 0.82);
+  --glass-blur: 24px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 4px 8px rgba(0,0,0,0.03);
+  --shadow-md: 0 2px 4px rgba(0,0,0,0.04), 0 8px 20px rgba(0,0,0,0.04);
+  --shadow-lg: 0 4px 8px rgba(0,0,0,0.04), 0 16px 40px rgba(0,0,0,0.06);
+  --shadow-card: 0 1px 1px rgba(0,0,0,0.03), 0 2px 4px rgba(0,0,0,0.03), 0 8px 16px rgba(0,0,0,0.04), inset 0 1px 0 rgba(255,255,255,0.8);
+
+  --border-light: 1px solid rgba(255,255,255,0.7);
+  --border-subtle: 1px solid rgba(0,0,0,0.06);
+
+  --c-ok: #22c55e;
+  --c-warn: #f59e0b;
+  --c-err: #ef4444;
+  --c-info: #3b82f6;
+
+  --header-h: 62px;
+  --sidebar-w: 260px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-xl: 24px;
+}

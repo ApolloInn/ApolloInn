@@ -1,0 +1,7 @@
+{
+  "rewrites": [
+    { "source": "/user/:path*", "destination": "https://api.apolloinn.site/user/:path*" },
+    { "source": "/v1/:path*", "destination": "https://api.apolloinn.site/v1/:path*" },
+    { "source": "/health", "destination": "https://api.apolloinn.site/health" }
+  ]
+}
