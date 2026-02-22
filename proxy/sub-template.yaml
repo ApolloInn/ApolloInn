@@ -1,0 +1,80 @@
+# Clash/Stash 订阅模板
+# 部署时替换：
+#   {{DOMAIN}}    → 域名（如 proxy-us.apolloinn.site）
+#   {{IP}}        → 服务器 IP
+#   {{FLAG}}      → 国旗 emoji（如 🇺🇸）
+#   {{REGION}}    → 地区代号（如 US）
+
+port: 7890
+socks-port: 7891
+allow-lan: false
+mode: rule
+log-level: info
+
+proxies:
+  - name: "{{FLAG}} {{REGION}} | VMess | CDN"
+    type: vmess
+    server: {{DOMAIN}}
+    port: 443
+    uuid: e121a1a4-03a2-446a-8f5f-a1bbe38c63ec
+    alterId: 0
+    cipher: auto
+    tls: true
+    servername: {{DOMAIN}}
+    network: ws
+    ws-opts:
+      path: /apollo-vmess
+      headers:
+        Host: {{DOMAIN}}
+  - name: "{{FLAG}} {{REGION}} | VLess | CDN"
+    type: vless
+    server: {{DOMAIN}}
+    port: 443
+    uuid: e121a1a4-03a2-446a-8f5f-a1bbe38c63ec
+    tls: true
+    servername: {{DOMAIN}}
+    network: ws
+    ws-opts:
+      path: /apollo-ws
+      headers:
+        Host: {{DOMAIN}}
+  - name: "{{FLAG}} {{REGION}} | VMess | Direct"
+    type: vmess
+    server: {{IP}}
+    port: 443
+    uuid: e121a1a4-03a2-446a-8f5f-a1bbe38c63ec
+    alterId: 0
+    cipher: auto
+    tls: true
+    servername: {{DOMAIN}}
+    network: ws
+    ws-opts:
+      path: /apollo-vmess
+      headers:
+        Host: {{DOMAIN}}
+  - name: "{{FLAG}} {{REGION}} | VLess | Direct"
+    type: vless
+    server: {{IP}}
+    port: 443
+    uuid: e121a1a4-03a2-446a-8f5f-a1bbe38c63ec
+    tls: true
+    servername: {{DOMAIN}}
+    network: ws
+    ws-opts:
+      path: /apollo-ws
+      headers:
+        Host: {{DOMAIN}}
+
+proxy-groups:
+  - name: Proxy
+    type: select
+    proxies:
+      - "{{FLAG}} {{REGION}} | VMess | CDN"
+      - "{{FLAG}} {{REGION}} | VLess | CDN"
+      - "{{FLAG}} {{REGION}} | VMess | Direct"
+      - "{{FLAG}} {{REGION}} | VLess | Direct"
+      - DIRECT
+
+rules:
+  - GEOIP,CN,DIRECT
+  - MATCH,Proxy

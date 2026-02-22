@@ -1,0 +1,33 @@
+{
+  "log": {"loglevel": "warning"},
+  "inbounds": [
+    {
+      "port": 10001,
+      "listen": "127.0.0.1",
+      "protocol": "vless",
+      "settings": {
+        "clients": [{"id": "e121a1a4-03a2-446a-8f5f-a1bbe38c63ec", "level": 0}],
+        "decryption": "none"
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {"path": "/apollo-ws"}
+      },
+      "sniffing": {"enabled": true, "destOverride": ["http", "tls"]}
+    },
+    {
+      "port": 10002,
+      "listen": "127.0.0.1",
+      "protocol": "vmess",
+      "settings": {
+        "clients": [{"id": "e121a1a4-03a2-446a-8f5f-a1bbe38c63ec", "alterId": 0}]
+      },
+      "streamSettings": {
+        "network": "ws",
+        "wsSettings": {"path": "/apollo-vmess"}
+      },
+      "sniffing": {"enabled": true, "destOverride": ["http", "tls"]}
+    }
+  ],
+  "outbounds": [{"protocol": "freedom", "settings": {"domainStrategy": "UseIPv4"}}]
+}

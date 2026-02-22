@@ -1,0 +1,52 @@
+# Environment
+.env
+.env.local
+
+# Keys & secrets
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+.shard/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+
+# Build artifacts
+build_tmp/
+obfuscated/
+stripped/
+tmp/
+
+# Embedded git repos (separate repos)
+/admin/
+/agent/
+/user/
+
+# Debug logs (generated when DEBUG_MODE is enabled)
+debug_logs*/
+debug*.json
+
+# Project-specific
+_notes/
+requests/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+# Archive (old code, debug scripts, trace logs)
+_archive/
+
+# Test data (real user requests, large)
+tests/captured_requests/
+.DS_Store
