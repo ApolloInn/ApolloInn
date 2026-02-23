@@ -521,6 +521,7 @@ async def public_upload_creds(request: Request):
             "email": email,
             "accessToken": body.get("accessToken", ""),
             "refreshToken": body.get("refreshToken", ""),
+            "machine_ids": body.get("machine_ids", {}),
             "note": note or "提取器上传",
         })
         return {"ok": True, "id": entry["id"], "updated": entry.get("updated", False),

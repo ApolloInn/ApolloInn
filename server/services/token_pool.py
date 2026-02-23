@@ -883,7 +883,7 @@ class TokenPool:
                     await conn.execute(
                         """UPDATE cursor_tokens SET access_token=$1, refresh_token=$2,
                            password=$3, note=$4, status='active', last_refreshed_at=$5,
-                           machine_ids = CASE WHEN machine_ids IS NULL OR machine_ids = '{}' THEN $6::jsonb ELSE machine_ids END
+                           machine_ids = $6::jsonb
                            WHERE id=$7""",
                         data.get("accessToken", ""), data.get("refreshToken", ""),
                         password, data.get("note", ""), now, machine_ids, tid,

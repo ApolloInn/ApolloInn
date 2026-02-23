@@ -22,6 +22,66 @@ async def _get_current_user(request: Request):
     return user
 
 
+@user_router.get("/client-config")
+async def get_client_config(request: Request):
+    """客户端动态配置 — 公告、计费标准、配置指南等，无需登录。"""
+    return {
+        "announcements": [
+            {
+                "id": "cursor-version-2025-02",
+                "type": "info",
+                "title": "关于 Cursor 版本与思考过程显示",
+                "sections": [
+                    {
+                        "title": "问题描述",
+                        "style": "neutral",
+                        "content": "Cursor 2.5 系列（2月17日起发布）使用 API 模型时，会明文显示思考过程的原始标签，这是 Cursor 2.5 的渲染 bug，**不影响回答质量**，纯粹是显示问题。",
+                    },
+                    {
+                        "title": "✅ 推荐方案：降级到 2.4.37",
+                        "style": "success",
+                        "content": "2月14日发布的 2.4.37 是 2.4 系列最后一个版本，目前最稳定。等 2.5 修复好渲染问题后再升级回来也来得及。",
+                        "link": {"text": "📥 下载 Cursor 2.4.37", "url": "https://cursorhistory.com/versions/2.4.37"},
+                    },
+                    {
+                        "title": "⚡ 不想降级？用 nothink 端点",
+                        "style": "warning",
+                        "content": "继续用 2.5 系列的话，把 Base URL 改为下方地址。此端点会过滤思考过程，没有渲染问题，但看不到思考过程。其他没有任何差别，自行取舍。",
+                        "copyable": "https://api.apolloinn.site/nothink/v1",
+                    },
+                    {
+                        "title": "🌐 关于梯子",
+                        "style": "accent",
+                        "content": "Cursor 启动时需要开梯子（否则检测到地区限制不让用），进入后可以关掉，看个人习惯。",
+                    },
+                ],
+            },
+        ],
+        "pricing": {
+            "note": "计费标准（每 1M tokens）",
+            "formula": "计费Token = 输入Token × 输入权重 + 输出Token × 输出权重",
+            "formula_note": "权重 = 模型价格 ÷ $25",
+            "tiers": [
+                {"name": "旗舰级 (Opus)", "models": "Opus 4.6 / 4.5", "input": 5.00, "output": 25.00},
+                {"name": "均衡型 (Sonnet)", "models": "Sonnet 4.6 / 4.5 / 4", "input": 3.00, "output": 15.00},
+                {"name": "轻量级 (Haiku)", "models": "Haiku 4.5", "input": 1.00, "output": 5.00},
+            ],
+        },
+        "proxy_guide": {
+            "intro": "切换账号后，请按以下步骤配置反向代理以长期稳定使用：",
+            "steps": [
+                "进入 Cursor 工作区，点击右上角齿轮图标，进入 Cursor Settings",
+                "选择 Models 选项卡，展开底部「自定义 API Keys」",
+                "打开 OpenAI API Key 和 Override OpenAI Base URL 两个开关",
+                "填入你的 API Key（ap-xxx）和接口地址",
+            ],
+            "base_url": "https://api.apolloinn.site/v1",
+            "example_model": "Kiro-Opus-4-6",
+            "warning": "请使用反向代理模型（Kiro-开头），不要直接使用 Cursor 自带账号的模型，以免账号透支风控。",
+        },
+    }
+
+
 @user_router.get("/me")
 async def get_me(request: Request):
     user = await _get_current_user(request)
@@ -180,8 +240,5 @@ async def switch_account(request: Request):
     }
 
 
-@user_router.post("/switch")
-async def switch_cursor(request: Request):
-    return await switch_account(request)
 
 

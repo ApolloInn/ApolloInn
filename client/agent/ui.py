@@ -182,16 +182,8 @@ tr:hover td{background:var(--c-primary-bg)}
         </div>
         <div class="card" id="barCard" style="margin-bottom:24px"><div class="card-body"><div class="stat-label">额度使用进度</div><div class="balance-wrap"><div class="balance-meta"><span id="barUsed"></span><span id="barLeft"></span></div><div class="balance-bar"><div class="balance-fill" id="barFill"></div></div></div></div></div>
 
-        <!-- 计费标准 -->
-        <div class="card" style="margin-bottom:24px"><div class="card-body" style="font-size:11px;color:var(--c-sec);line-height:1.8">
-          <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--c-text);font-size:12px;font-weight:600"><span class="material-symbols-rounded" style="font-size:16px">calculate</span>计费标准（每 1M tokens）</div>
-          <table style="width:100%;font-size:11px"><thead><tr><th style="text-align:left">模型级别</th><th>适用模型</th><th>输入 (Input)</th><th>输出 (Output)</th></tr></thead><tbody>
-            <tr><td>旗舰级 (Opus)</td><td>Opus 4.6 / 4.5</td><td style="font-family:monospace">$5.00</td><td style="font-family:monospace">$25.00</td></tr>
-            <tr><td>均衡型 (Sonnet)</td><td>Sonnet 4.6 / 4.5 / 4</td><td style="font-family:monospace">$3.00</td><td style="font-family:monospace">$15.00</td></tr>
-            <tr><td>轻量级 (Haiku)</td><td>Haiku 4.5</td><td style="font-family:monospace">$1.00</td><td style="font-family:monospace">$5.00</td></tr>
-          </tbody></table>
-          <div style="margin-top:8px;padding:6px 10px;background:rgba(0,0,0,.03);border-radius:6px;font-size:11px">计费公式：<code style="background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px">计费Token = 输入Token × 输入权重 + 输出Token × 输出权重</code><span style="margin-left:8px;color:var(--c-sec)">（权重 = 模型价格 ÷ $25）</span></div>
-        </div></div>
+        <!-- 计费标准（动态） -->
+        <div id="pricingCard"></div>
 
         <!-- Cursor Account -->
         <div class="section-title"><span class="material-symbols-rounded">badge</span>Cursor 会员</div>
@@ -241,25 +233,16 @@ tr:hover td{background:var(--c-primary-bg)}
           <div class="endpoint-hint">在 OpenAI 兼容客户端（Cursor、ChatBox 等）中填入上方地址作为 Base URL，API Key 填你的 <code>ap-xxx</code> key 即可。</div>
         </div></div>
 
-        <!-- Proxy Guide -->
-        <div class="section-title"><span class="material-symbols-rounded">settings_suggest</span>配置反向代理（重要）</div>
-        <div class="card"><div class="card-body" style="font-size:12px;color:var(--c-sec);line-height:1.9">
-          <div style="margin-bottom:8px;color:var(--c-text);font-size:13px">切换账号后，请按以下步骤配置反向代理以长期稳定使用：</div>
-          <div style="padding-left:4px">
-            进入 Cursor 工作区，点击右上角齿轮图标，进入 Cursor Settings<br>
-            选择 Models 选项卡，展开底部"自定义 API Keys"<br>
-            打开 OpenAI API Key 和 Override OpenAI Base URL 两个开关<br>
-            填入你的 API Key（<code>ap-xxx</code>）和接口地址：
-          </div>
-          <div style="position:relative;margin:8px 0 8px 4px"><code style="background:rgba(0,0,0,.06);padding:6px 30px 6px 8px;border-radius:4px;display:block;font-size:11px">https://api.apolloinn.site/v1</code><button class="copy-btn" style="position:absolute;top:4px;right:4px" onclick="copy('https://api.apolloinn.site/v1')"><span class="material-symbols-rounded" style="font-size:14px">content_copy</span></button></div>
-          <div style="padding-left:4px">在 Models 列表中添加自定义模型，如 <code>Kiro-Opus-4-6</code></div>
-          <div style="margin-top:10px;padding:8px 12px;background:rgba(255,180,0,.08);border-radius:8px;font-size:11px;line-height:1.6">注意：请使用反向代理模型（Kiro-开头），不要直接使用 Cursor 自带账号的模型，以免账号透支风控。</div>
-        </div></div>
+        <!-- Proxy Guide（动态） -->
+        <div id="proxyGuideCard"></div>
 
         <!-- Model List -->
         <div class="section-title"><span class="material-symbols-rounded">shuffle</span>可用模型</div>
         <div class="card"><div class="card-header"><span class="card-title">Cursor 反向代理模型</span></div><div class="card-body" id="cursorModelsBody"></div></div>
         <div class="card" style="margin-top:12px"><div class="card-header"><span class="card-title">Cline / ChatBox 等客户端</span></div><div class="card-body" id="clineModelsBody"></div></div>
+
+        <!-- Announcement（动态） -->
+        <div id="announcementCard"></div>
 
         <!-- Usage by date -->
         <div class="section-title"><span class="material-symbols-rounded">monitoring</span>用量统计</div>
@@ -422,6 +405,16 @@ async function loadData(){
     renderModels(combos.combos||{});
     renderUsage(usage.usage||{});
   } catch(e){ toast("加载数据失败: "+e.message,"err"); }
+  // 动态配置（公告/计费/指南）— 只拉一次
+  if(!window._cfgLoaded){
+    try{
+      const cfg = await api("GET","/user/client-config");
+      renderPricing(cfg.pricing);
+      renderProxyGuide(cfg.proxy_guide);
+      renderAnnouncements(cfg.announcements||[]);
+      window._cfgLoaded = true;
+    } catch(e){}
+  }
 }
 
 function renderStats(u){
@@ -483,6 +476,44 @@ function renderModels(combos){
   // 更新模型数量
   const countEl = $("#modelCount");
   if(countEl) countEl.textContent = allModels.length + " 个";
+}
+
+function renderPricing(p){
+  if(!p) return;
+  const el = $("#pricingCard");
+  let rows = "";
+  (p.tiers||[]).forEach(t=>{
+    rows += `<tr><td>${t.name}</td><td>${t.models}</td><td style="font-family:monospace">$${t.input.toFixed(2)}</td><td style="font-family:monospace">$${t.output.toFixed(2)}</td></tr>`;
+  });
+  el.innerHTML = `<div class="card" style="margin-bottom:24px"><div class="card-body" style="font-size:11px;color:var(--c-sec);line-height:1.8"><div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;color:var(--c-text);font-size:12px;font-weight:600"><span class="material-symbols-rounded" style="font-size:16px">calculate</span>${p.note||"计费标准"}</div><table style="width:100%;font-size:11px"><thead><tr><th style="text-align:left">模型级别</th><th>适用模型</th><th>输入 (Input)</th><th>输出 (Output)</th></tr></thead><tbody>${rows}</tbody></table><div style="margin-top:8px;padding:6px 10px;background:rgba(0,0,0,.03);border-radius:6px;font-size:11px">计费公式：<code style="background:rgba(0,0,0,.06);padding:1px 4px;border-radius:3px">${p.formula||""}</code><span style="margin-left:8px;color:var(--c-sec)">（${p.formula_note||""}）</span></div></div></div>`;
+}
+
+function renderProxyGuide(g){
+  if(!g) return;
+  const el = $("#proxyGuideCard");
+  let steps = "";
+  (g.steps||[]).forEach(s=>{ steps += s + "<br>"; });
+  el.innerHTML = `<div class="section-title"><span class="material-symbols-rounded">settings_suggest</span>配置反向代理（重要）</div><div class="card"><div class="card-body" style="font-size:12px;color:var(--c-sec);line-height:1.9"><div style="margin-bottom:8px;color:var(--c-text);font-size:13px">${g.intro||""}</div><div style="padding-left:4px">${steps}填入你的 API Key（<code>ap-xxx</code>）和接口地址：</div><div style="position:relative;margin:8px 0 8px 4px"><code style="background:rgba(0,0,0,.06);padding:6px 30px 6px 8px;border-radius:4px;display:block;font-size:11px">${g.base_url||""}</code><button class="copy-btn" style="position:absolute;top:4px;right:4px" onclick="copy('${g.base_url||""}')"><span class="material-symbols-rounded" style="font-size:14px">content_copy</span></button></div><div style="padding-left:4px">在 Models 列表中添加自定义模型，如 <code>${g.example_model||""}</code></div><div style="margin-top:10px;padding:8px 12px;background:rgba(255,180,0,.08);border-radius:8px;font-size:11px;line-height:1.6">注意：${g.warning||""}</div></div></div>`;
+}
+
+function renderAnnouncements(list){
+  if(!list||!list.length) return;
+  const el = $("#announcementCard");
+  const STYLE_BG = {neutral:"rgba(0,0,0,.03)",success:"rgba(34,197,94,.06)",warning:"rgba(245,158,11,.06)",accent:"rgba(99,102,241,.06)"};
+  let html = '<div class="section-title"><span class="material-symbols-rounded">campaign</span>公告</div>';
+  list.forEach(a=>{
+    html += '<div class="card" style="border:1px solid rgba(232,80,30,.15)"><div class="card-body" style="font-size:12px;color:var(--c-sec);line-height:1.9">';
+    html += `<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;color:var(--c-text);font-size:13px;font-weight:700"><span class="material-symbols-rounded" style="font-size:18px;color:var(--c-primary)">info</span>${a.title||""}</div>`;
+    (a.sections||[]).forEach(s=>{
+      const bg = STYLE_BG[s.style]||STYLE_BG.neutral;
+      html += `<div style="padding:10px 14px;background:${bg};border-radius:8px;margin-bottom:10px"><div style="font-weight:600;color:var(--c-text);margin-bottom:4px">${s.title||""}</div>${(s.content||"").replace(/\*\*(.*?)\*\*/g,'<span style="color:var(--c-text);font-weight:600">$1</span>')}`;
+      if(s.link) html += `<br><a href="${s.link.url}" target="_blank" rel="noopener" style="color:var(--c-primary);text-decoration:none;font-weight:600">${s.link.text}</a>`;
+      if(s.copyable) html += `<div style="display:flex;align-items:center;gap:6px;margin:6px 0"><code style="background:rgba(0,0,0,.06);padding:4px 8px;border-radius:4px;font-size:11px;flex:1">${s.copyable}</code><button class="copy-btn" onclick="copy('${s.copyable}')"><span class="material-symbols-rounded" style="font-size:14px">content_copy</span></button></div>`;
+      html += '</div>';
+    });
+    html += '</div></div>';
+  });
+  el.innerHTML = html;
 }
 
 function renderUsage(usage){
