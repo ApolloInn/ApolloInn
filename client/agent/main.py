@@ -702,8 +702,7 @@ def do_switch(account: dict, proxy_config: dict = None) -> dict:
     5. 写入新凭证
     6. 验证写入
     7. 配置代理
-    8. 补丁
-    9. 清缓存 + 启动
+    8. 清缓存 + 启动
     """
     steps = []
 
@@ -747,11 +746,7 @@ def do_switch(account: dict, proxy_config: dict = None) -> dict:
         )
         steps.extend(proxy_steps)
 
-    # 8. 补丁：防止 Cursor 自动关闭 OpenAI Key 转发
-    patch_steps = patch_cursor_binary()
-    steps.extend(patch_steps)
-
-    # 9. 清缓存 + 启动
+    # 8. 清缓存 + 启动
     cache_steps = clear_cursor_cache()
     steps.extend(cache_steps)
     launched, launch_msg = launch_cursor()
