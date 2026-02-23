@@ -471,9 +471,11 @@ AUTH_KEYS = [
     "cursorAuth/email",
     "cursorAuth/cachedEmail",
     "cursorAuth/stripeMembershipType",
+    "cursorAuth/stripeSubscriptionStatus",
     "cursorAuth/sign_up_type",
     "cursorAuth/cachedSignUpType",
-    "cursorAuth/stripeSubscriptionStatus",
+    "cursorAuth/onboardingDate",
+    "cursorAuth/openAIKey",
 ]
 
 
