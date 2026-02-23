@@ -757,7 +757,7 @@ def do_switch(account: dict, proxy_config: dict = None) -> dict:
 
 def do_promax_switch() -> dict:
     """
-    换号：调 gateway 服务器的 /user/switch 拿完整凭证包（token + machine_ids + proxy），然后本地 do_switch。
+    换号：调 gateway 服务器的 /user/smart-switch 拿完整凭证包（token + machine_ids + proxy），然后本地 do_switch。
     """
     cfg = load_config()
     usertoken = cfg.get("usertoken", "")
@@ -767,7 +767,7 @@ def do_promax_switch() -> dict:
 
     try:
         req = urllib.request.Request(
-            "https://api.apolloinn.site/user/switch",
+            "https://api.apolloinn.site/user/smart-switch",
             data=b"{}",
             method="POST",
         )
@@ -1481,7 +1481,7 @@ class AgentHandler(BaseHTTPRequestHandler):
             self._json(200, result)
 
         elif path in ("/switch", "/smart-switch", "/byok-setup"):
-            # 统一换号：调 gateway /user/switch 拿凭证包，本地 do_switch
+            # 统一换号：调 gateway /user/smart-switch 拿凭证包，本地 do_switch
             usertoken = body.get("usertoken", "")
             if not usertoken:
                 cfg = load_config()
@@ -1498,7 +1498,7 @@ class AgentHandler(BaseHTTPRequestHandler):
             # 调 gateway
             try:
                 req = urllib.request.Request(
-                    "https://api.apolloinn.site/user/switch",
+                    "https://api.apolloinn.site/user/smart-switch",
                     data=b"{}",
                     method="POST",
                 )
