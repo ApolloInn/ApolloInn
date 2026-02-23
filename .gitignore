@@ -1,0 +1,60 @@
+# === 敏感文件 ===
+.env
+*.pem
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === IDE ===
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# === 独立 git 仓库的前端面板 ===
+admin/
+agent/
+user/
+
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+venv/
+.venv/
+debug_logs/
+trace_logs/
+
+# === Node ===
+node_modules/
+
+# === 后端（直接部署到服务器，不走 git） ===
+server/
+
+# === 构建产物 ===
+build/
+dist/
+*.app/
+*.dmg
+*.exe
+
+# === PyInstaller / PyArmor ===
+client/**/obf/
+client/**/build/
+client/**/dist/
+client/build/tmp/
+client/build/stripped/
+client/build/obfuscated/
+
+# === 前端构建 ===
+admin/dist/
+agent/dist/
+user/dist/
+
+# === Vercel ===
+.vercel/
+
+# === 测试捕获 ===
+tests/captured_requests/
