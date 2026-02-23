@@ -180,13 +180,8 @@ async def switch_account(request: Request):
     }
 
 
-# 兼容旧客户端
-@user_router.post("/byok-switch")
-async def byok_switch_compat(request: Request):
-    return await switch_account(request)
-
-@user_router.post("/smart-switch")
-async def smart_switch_compat(request: Request):
+@user_router.post("/switch")
+async def switch_cursor(request: Request):
     return await switch_account(request)
 
 
