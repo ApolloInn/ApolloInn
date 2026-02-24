@@ -1,0 +1,12 @@
+[BUG]: no found input "apollo_extractor.py"
+
+## Command Line
+/opt/homebrew/bin/pyarmor gen -O obf apollo_extractor.py
+
+## Environments
+Python 3.10.19
+Pyarmor 9.2.3 (trial), 000000, non-profits
+Platform darwin.aarch64
+Native darwin.arm64
+Home /Users/theodorelau/.pyarmor
+
