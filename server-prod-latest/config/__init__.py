@@ -1,0 +1,79 @@
+# -*- coding: utf-8 -*-
+"""
+Apollo Gateway 配置包。
+
+将原 core/config.py 按职责拆分为：
+  - config.server      — 服务器/代理/日志/超时/重试/调试/版本
+  - config.kiro        — Kiro API 凭证/URL/区域/Token 刷新
+  - config.models      — 模型列表/别名/映射/缓存
+  - config.antigravity  — Antigravity OAuth/API/模型
+  - config.features    — 功能开关（压缩/推理/截断恢复等）
+
+本 __init__.py 重新导出所有符号，保证 `from config import X` 向后兼容。
+"""
+
+# ── server ──
+from config.server import (
+    _get_raw_env_value,
+    DEFAULT_SERVER_HOST, SERVER_HOST,
+    DEFAULT_SERVER_PORT, SERVER_PORT,
+    PROXY_API_KEY,
+    VPN_PROXY_URL,
+    MAX_RETRIES, BASE_RETRY_DELAY,
+    LOG_LEVEL,
+    FIRST_TOKEN_TIMEOUT, STREAMING_READ_TIMEOUT, FIRST_TOKEN_MAX_RETRIES,
+    DEBUG_MODE, DEBUG_DIR,
+    _warn_timeout_configuration,
+    APP_VERSION, APP_TITLE, APP_DESCRIPTION,
+)
+
+# ── kiro ──
+from config.kiro import (
+    REFRESH_TOKEN, PROFILE_ARN, REGION,
+    KIRO_CREDS_FILE, KIRO_CLI_DB_FILE,
+    KIRO_REFRESH_URL_TEMPLATE, AWS_SSO_OIDC_URL_TEMPLATE,
+    KIRO_API_HOST_TEMPLATE, KIRO_Q_HOST_TEMPLATE,
+    TOKEN_REFRESH_THRESHOLD,
+    VALID_Q_REGIONS, DEFAULT_Q_REGION,
+    get_kiro_refresh_url, get_aws_sso_oidc_url,
+    get_kiro_api_host, get_kiro_q_host,
+)
+
+# ── models ──
+from config.models import (
+    HIDDEN_MODELS, MODEL_ALIASES, HIDDEN_FROM_LIST,
+    KIRO_FREE_MODELS, KIRO_ENTERPRISE_MODELS, KIRO_MODELS,
+    MODEL_CACHE_TTL, DEFAULT_MAX_INPUT_TOKENS,
+)
+
+# ── antigravity ──
+from config.antigravity import (
+    ANTIGRAVITY_CLIENT_ID, ANTIGRAVITY_CLIENT_SECRET,
+    APOLLO_OAUTH_CLIENT_ID, APOLLO_OAUTH_CLIENT_SECRET,
+    ANTIGRAVITY_TOKEN_URL, ANTIGRAVITY_USERINFO_URL,
+    ANTIGRAVITY_LOAD_CODE_ASSIST_URL, ANTIGRAVITY_FETCH_MODELS_URL,
+    ANTIGRAVITY_ONBOARD_URL, ANTIGRAVITY_API_URLS,
+    ANTIGRAVITY_VERSION, ANTIGRAVITY_HEADERS,
+    ANTIGRAVITY_MODELS, ANTIGRAVITY_ONLY_MODELS,
+    ANTIGRAVITY_MODEL_MAP, ENTERPRISE_KIRO_WITH_AG_FALLBACK,
+    ANTIGRAVITY_CLAUDE_MODELS,
+)
+
+# ── orchids ──
+from config.orchids import (
+    ORCHIDS_CLERK_BASE_URL, ORCHIDS_CLERK_API_VERSION, ORCHIDS_CLERK_JS_VERSION,
+    ORCHIDS_UPSTREAM_URL, ORCHIDS_USER_AGENT, ORCHIDS_DEFAULT_PROJECT_ID,
+    ORCHIDS_MODELS, ORCHIDS_ONLY_MODELS, ORCHIDS_MODEL_MAP,
+)
+
+# ── features ──
+from config.features import (
+    TOOL_DESCRIPTION_MAX_LENGTH,
+    CONTEXT_COMPRESSION,
+    TOOL_RESULT_MAX_LENGTH, TOOL_RESULT_KEEP_HEAD, TOOL_RESULT_KEEP_TAIL,
+    ANTI_LAZY_STOP_THRESHOLD,
+    TRUNCATION_RECOVERY,
+    FAKE_REASONING_ENABLED, FAKE_REASONING_MAX_TOKENS,
+    FAKE_REASONING_HANDLING, FAKE_REASONING_OPEN_TAGS,
+    FAKE_REASONING_INITIAL_BUFFER_SIZE,
+)
